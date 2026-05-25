@@ -160,7 +160,7 @@
             x: Math.random() * canvas.width,
             y: canvas.height + 20,
             vx: (Math.random() - 0.5) * 0.6,
-            vy: -(2 + Math.random() * 2.5),
+            vy: -(4 + Math.random() * 4),
             alpha: 1,
             type: type,
             scale: (0.6 + Math.random() * 1.2) * sizeMul
@@ -168,11 +168,10 @@
     }
 
     function getInterval(elapsed) {
-        if (elapsed < 1000) return 260;
-        if (elapsed < 2000) return 160;
-        if (elapsed < 3000) return 90;
-        if (elapsed < 4000) return 50;
-        return 30;
+        if (elapsed < 1000) return 180;
+        if (elapsed < 2000) return 100;
+        if (elapsed < 3000) return 55;
+        return 25;
     }
 
     function tick(ts) {
