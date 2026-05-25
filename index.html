@@ -37,6 +37,7 @@
         user-select:none;
         -webkit-tap-highlight-color:transparent;
         touch-action:manipulation;
+        transition:opacity 0.4s;
     }
     .btn.pressing {
         transform:translate(3px,3px);
@@ -44,12 +45,48 @@
             1px 1px 0 #c02d65,
             0 0 40px rgba(230,57,124,0.5);
     }
+    .btn.hidden { opacity:0; pointer-events:none; }
+
+    /* 翻页白屏 */
+    .flip-page {
+        position:fixed; inset:0; z-index:10;
+        transform:translateY(100%);
+        transition:transform 0.8s cubic-bezier(0.4,0,0.2,1);
+        pointer-events:none;
+    }
+    .flip-page.show { transform:translateY(0); pointer-events:auto; }
+
+    /* 白色页内容 */
+    .flip-page .white-page {
+        width:100%; height:100%;
+        background:#fff;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-family:'Courier New',monospace;
+        color:#000;
+        font-size:20px;
+    }
+
+    /* 渐变遮罩 - 在翻页白屏顶部 */
+    .flip-page::before {
+        content:'';
+        position:absolute;
+        top:0; left:0; right:0; height:80px;
+        background:linear-gradient(to bottom, rgba(0,0,0,0.3), transparent);
+        z-index:1;
+    }
 </style>
 </head>
 <body>
 
 <canvas id="c"></canvas>
 <div class="btn" id="btn">长按开启</div>
+<div class="flip-page" id="flipPage">
+    <div class="white-page">
+        ♡
+    </div>
+</div>
 
 <script>
 (function(){
@@ -61,6 +98,8 @@
     var pressStart = 0;
     var lastSpawn = 0;
     var animId = null;
+    var flipped = false;
+    var flipPage = document.getElementById('flipPage');
 
     // 爱心外框（粉色）——8列×6行，顶部有凹口
     var HEART_OUT = [
@@ -139,8 +178,14 @@
     function tick(ts) {
         animId = requestAnimationFrame(tick);
 
-        if (pressing) {
+        if (pressing && !flipped) {
             var elapsed = ts - pressStart;
+            // 第6秒触发翻页
+            if (elapsed >= 6000) {
+                flipped = true;
+                flipPage.classList.add('show');
+                btn.classList.add('hidden');
+            }
             var interval = getInterval(elapsed);
             if (ts - lastSpawn > interval) {
                 spawn(elapsed);
