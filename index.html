@@ -113,8 +113,10 @@
         ctx.globalAlpha = 1;
     }
 
-    function spawn() {
+    function spawn(elapsed) {
         var type = Math.random() < 0.6 ? 'heart' : 'envelope';
+        var t = Math.min(elapsed, 5000);
+        var sizeMul = 1 + (t / 5000) * 2.5;
         particles.push({
             x: Math.random() * canvas.width,
             y: canvas.height + 20,
@@ -122,7 +124,7 @@
             vy: -(2 + Math.random() * 2.5),
             alpha: 1,
             type: type,
-            scale: 0.6 + Math.random() * 1.2
+            scale: (0.6 + Math.random() * 1.2) * sizeMul
         });
     }
 
@@ -141,9 +143,9 @@
             var elapsed = ts - pressStart;
             var interval = getInterval(elapsed);
             if (ts - lastSpawn > interval) {
-                spawn();
+                spawn(elapsed);
                 lastSpawn = ts;
-                if (interval < 70) { spawn(); }
+                if (interval < 70) { spawn(elapsed); }
             }
         }
 
