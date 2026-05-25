@@ -2,106 +2,18 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Page</title>
 <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
-        min-height:100vh; min-height:100dvh;
+        min-height:100vh;
         background:#000;
-        display:flex; align-items:center; justify-content:center;
         font-family:'Courier New',monospace;
-        overflow-x:hidden; overflow-y:auto;
-    }
-    body::before {
-        content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
-    }
-
-    /* 像素爱心 - 静态装饰 */
-    .hearts { position:fixed; inset:0; pointer-events:none; z-index:0; }
-    .ph { position:absolute; width:6px; height:6px; }
-    .ph::after { content:''; display:block; width:6px; height:6px;
-        box-shadow:
-            12px 0  var(--c), 24px 0  var(--c),
-            6px  6px  var(--c),12px 6px var(--c),18px 6px var(--c),24px 6px var(--c),30px 6px var(--c),
-            0   12px var(--c),6px 12px var(--c),12px 12px var(--c),18px 12px var(--c),24px 12px var(--c),30px 12px var(--c),36px 12px var(--c),
-            0   18px var(--c),6px 18px var(--c),12px 18px var(--c),18px 18px var(--c),24px 18px var(--c),30px 18px var(--c),36px 18px var(--c),
-            6px  24px var(--c),12px 24px var(--c),18px 24px var(--c),24px 24px var(--c),30px 24px var(--c),
-            12px 30px var(--c),18px 30px var(--c),24px 30px var(--c),
-            18px 36px var(--c);
-    }
-    .ph1{ left:5%; top:8%;  --c:#ff6b9d; transform:scale(1.2); }
-    .ph2{ left:82%;top:10%; --c:#ff8db5; transform:scale(0.9); }
-    .ph3{ left:8%; top:75%; --c:#ff6b9d; transform:scale(0.8); }
-    .ph4{ left:78%;top:78%; --c:#ffa4c4; transform:scale(1.1); }
-    .ph5{ left:50%;top:5%;  --c:#ffe0ec;transform:scale(0.7); }
-    .ph6{ left:55%;top:88%; --c:#ff8db5; transform:scale(0.9); }
-
-    /* 星点 - 静态 */
-    .st { position:absolute; width:3px; height:3px; background:#ffe0ec; border-radius:0; pointer-events:none; }
-    .s1{ left:15%;top:22%; } .s2{ left:72%;top:28%; } .s3{ left:22%;top:65%; }
-    .s4{ left:65%;top:68%; } .s5{ left:48%;top:15%; } .s6{ left:38%;top:82%; }
-
-    /* 主卡片 */
-    .card {
-        position:relative; z-index:1;
-        background:#0a0a0a;
-        border:3px solid #ff6b9d;
-        padding:40px 32px 32px;
-        text-align:center;
-        width:340px; max-width:88vw;
-        box-shadow:5px 5px 0 #ff6b9d, 0 0 40px rgba(255,107,157,0.12);
-    }
-    .card::before, .card::after { content:''; position:absolute; width:18px; height:18px; }
-    .card::before { top:-3px; left:-3px; border-top:5px solid #ff6b9d; border-left:5px solid #ff6b9d; }
-    .card::after { bottom:-3px; right:-3px; border-bottom:5px solid #ff6b9d; border-right:5px solid #ff6b9d; }
-    .cn-tr, .cn-bl { position:absolute; width:18px; height:18px; }
-    .cn-tr { top:-3px; right:-3px; border-top:5px solid #ff6b9d; border-right:5px solid #ff6b9d; }
-    .cn-bl { bottom:-3px; left:-3px; border-bottom:5px solid #ff6b9d; border-left:5px solid #ff6b9d; }
-
-    .card h1 {
-        font-family:'Courier New',monospace;
-        color:#ffa4c4; font-size:24px; letter-spacing:4px;
-        text-shadow:2px 2px 0 #ff6b9d;
-        margin-bottom:6px;
-    }
-    .line { color:#ff6b9d; font-size:12px; letter-spacing:4px; margin:16px 0; user-select:none; }
-    .content { color:#ccc; font-size:15px; line-height:2; min-height:30px; letter-spacing:1px; }
-
-    /* 标题爱心 */
-    .hi { display:inline-block; width:5px; height:5px; margin:0 8px; vertical-align:middle; position:relative; }
-    .hi::after { content:''; display:block; width:5px; height:5px;
-        box-shadow:
-            10px 0  #ff6b9d,20px 0  #ff6b9d,
-            5px  5px #ff6b9d,10px 5px #ff6b9d,15px 5px #ff6b9d,20px 5px #ff6b9d,25px 5px #ff6b9d,
-            0   10px #ff6b9d,5px 10px #ff6b9d,10px 10px #ff6b9d,15px 10px #ff6b9d,20px 10px #ff6b9d,25px 10px #ff6b9d,30px 10px #ff6b9d,
-            0   15px #ff6b9d,5px 15px #ff6b9d,10px 15px #ff6b9d,15px 15px #ff6b9d,20px 15px #ff6b9d,25px 15px #ff6b9d,30px 15px #ff6b9d,
-            5px  20px #ff6b9d,10px 20px #ff6b9d,15px 20px #ff6b9d,20px 20px #ff6b9d,25px 20px #ff6b9d,
-            10px 25px #ff6b9d,15px 25px #ff6b9d,20px 25px #ff6b9d,
-            15px 30px #ff6b9d;
     }
 </style>
 </head>
 <body>
-
-<div class="hearts">
-    <div class="ph ph1"></div><div class="ph ph2"></div><div class="ph ph3"></div>
-    <div class="ph ph4"></div><div class="ph ph5"></div><div class="ph ph6"></div>
-    <div class="st s1"></div><div class="st s2"></div><div class="st s3"></div>
-    <div class="st s4"></div><div class="st s5"></div><div class="st s6"></div>
-</div>
-
-<div class="card">
-    <div class="cn-tr"></div><div class="cn-bl"></div>
-    <div class="hi"></div>
-    <h1>MY PAGE</h1>
-    <div class="hi" style="transform:scaleX(-1);"></div>
-    <div class="line">■ ■ ■ ■ ■ ■ ■</div>
-    <div class="content">
-        欢迎来到我的主页
-    </div>
-    <div class="line">■ ■ ■ ■ ■ ■ ■</div>
-</div>
 
 </body>
 </html>
