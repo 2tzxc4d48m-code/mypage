@@ -62,26 +62,24 @@
     var lastSpawn = 0;
     var animId = null;
 
-    // 爱心外框（粉色）
+    // 爱心外框（粉色）——8列×6行，顶部有凹口
     var HEART_OUT = [
-        2,0, 3,0, 4,0,
-        1,1, 5,1,
-        0,2, 6,2,
-        0,3, 6,3,
-        1,4, 5,4,
-        2,5, 4,5,
-        3,6
+        1,0,2,0, 5,0,6,0,
+        0,1, 7,1,
+        0,2, 7,2,
+        1,3, 6,3,
+        2,4, 5,4,
+        3,5,4,5
     ];
     // 爱心内部（白色）
     var HEART_IN = [
-        2,1, 3,1, 4,1,
-        1,2, 2,2, 3,2, 4,2, 5,2,
-        1,3, 2,3, 3,3, 4,3, 5,3,
-        2,4, 3,4, 4,4,
-        3,5
+        1,1,2,1,3,1,4,1,5,1,6,1,
+        1,2,2,2,3,2,4,2,5,2,6,2,
+        2,3,3,3,4,3,5,3,
+        3,4,4,4
     ];
 
-    // 像素信封
+    // 像素信封 9×9
     var ENVELOPE = [
         0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,
         0,1, 8,1,
@@ -94,8 +92,7 @@
         3,8,4,8,5,8
     ];
 
-    var H_PXL = 6; // 爱心像素尺寸
-    var E_PXL = 5; // 信封像素尺寸
+    var BASE_PXL = 5; // 基础像素尺寸
 
     function resize() {
         canvas.width = window.innerWidth;
@@ -120,12 +117,12 @@
         var type = Math.random() < 0.6 ? 'heart' : 'envelope';
         particles.push({
             x: Math.random() * canvas.width,
-            y: canvas.height + 10,
-            vx: (Math.random() - 0.5) * 2,
-            vy: -(2 + Math.random() * 3),
+            y: canvas.height + 20,
+            vx: (Math.random() - 0.5) * 0.6,
+            vy: -(2 + Math.random() * 2.5),
             alpha: 1,
             type: type,
-            rotation: (Math.random() - 0.5) * 0.6
+            scale: 0.6 + Math.random() * 1.2
         });
     }
 
@@ -146,7 +143,7 @@
             if (ts - lastSpawn > interval) {
                 spawn();
                 lastSpawn = ts;
-                if (interval < 80) { spawn(); if (interval < 50) spawn(); }
+                if (interval < 70) { spawn(); }
             }
         }
 
@@ -156,27 +153,25 @@
             var p = particles[i];
             p.x += p.vx;
             p.y += p.vy;
-            p.vy -= 0.015;
-            p.alpha -= 0.005;
-            p.rotation += 0.01;
+            p.alpha -= 0.004;
 
-            if (p.alpha <= 0 || p.y < -120) {
+            if (p.alpha <= 0 || p.y < -150) {
                 particles.splice(i, 1);
                 continue;
             }
 
+            var s = p.scale * BASE_PXL;
             ctx.save();
             ctx.translate(p.x, p.y);
-            ctx.rotate(p.rotation);
 
             if (p.type === 'heart') {
                 ctx.fillStyle = '#ff6b9d';
-                drawShape(ctx, HEART_OUT, H_PXL, -3.5*H_PXL, -3.5*H_PXL, p.alpha);
+                drawShape(ctx, HEART_OUT, s, -4*s, -3*s, p.alpha);
                 ctx.fillStyle = '#fff';
-                drawShape(ctx, HEART_IN, H_PXL, -3.5*H_PXL, -3.5*H_PXL, p.alpha);
+                drawShape(ctx, HEART_IN, s, -4*s, -3*s, p.alpha);
             } else {
                 ctx.fillStyle = '#ffe0ec';
-                drawShape(ctx, ENVELOPE, E_PXL, -4.5*E_PXL, -4.5*E_PXL, p.alpha);
+                drawShape(ctx, ENVELOPE, s, -4.5*s, -4.5*s, p.alpha);
             }
 
             ctx.restore();
