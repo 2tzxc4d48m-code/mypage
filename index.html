@@ -10,10 +10,42 @@
         min-height:100vh;
         background:#000;
         font-family:'Courier New',monospace;
+        display:flex;
+        align-items:flex-end;
+        justify-content:center;
+        padding-bottom:60px;
+    }
+
+    .btn {
+        display:inline-block;
+        background:#E6397C;
+        color:#fff;
+        font-family:'Courier New',monospace;
+        font-size:18px;
+        letter-spacing:4px;
+        padding:16px 48px;
+        border:3px solid #ff6b9d;
+        border-radius:14px;
+        text-decoration:none;
+        cursor:pointer;
+        box-shadow:
+            4px 4px 0 #c02d65,
+            0 0 30px rgba(230,57,124,0.3);
+        transition:all 0.1s;
+        user-select:none;
+        -webkit-tap-highlight-color:transparent;
+    }
+    .btn:active {
+        transform:translate(3px,3px);
+        box-shadow:
+            1px 1px 0 #c02d65,
+            0 0 20px rgba(230,57,124,0.2);
     }
 </style>
 </head>
 <body>
+
+<div class="btn">长按开启</div>
 
 </body>
 </html>
