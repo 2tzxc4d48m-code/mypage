@@ -2,21 +2,25 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>My Page</title>
 <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
-        min-height:100vh;
+        min-height:100vh; min-height:100dvh;
         background:#000;
         font-family:'Courier New',monospace;
         display:flex;
         align-items:flex-end;
         justify-content:center;
         padding-bottom:60px;
+        overflow:hidden;
     }
 
+    canvas { position:fixed; inset:0; pointer-events:none; z-index:0; }
+
     .btn {
+        position:relative; z-index:1;
         display:inline-block;
         background:#E6397C;
         color:#fff;
@@ -26,26 +30,182 @@
         padding:16px 48px;
         border:3px solid #ff6b9d;
         border-radius:14px;
-        text-decoration:none;
         cursor:pointer;
         box-shadow:
             4px 4px 0 #c02d65,
             0 0 30px rgba(230,57,124,0.3);
-        transition:all 0.1s;
         user-select:none;
         -webkit-tap-highlight-color:transparent;
+        touch-action:manipulation;
     }
-    .btn:active {
+    .btn.pressing {
         transform:translate(3px,3px);
         box-shadow:
             1px 1px 0 #c02d65,
-            0 0 20px rgba(230,57,124,0.2);
+            0 0 40px rgba(230,57,124,0.5);
     }
 </style>
 </head>
 <body>
 
-<div class="btn">长按开启</div>
+<canvas id="c"></canvas>
+<div class="btn" id="btn">长按开启</div>
 
+<script>
+(function(){
+    var btn = document.getElementById('btn');
+    var canvas = document.getElementById('c');
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var pressing = false;
+    var pressStart = 0;
+    var lastSpawn = 0;
+    var spawnTimer = null;
+    var animId = null;
+
+    // 像素爱心形状（7列 × 7行）
+    var HEART = [
+        2,0, 3,0, 4,0,
+        1,1, 2,1, 3,1, 4,1, 5,1,
+        0,2, 1,2, 2,2, 3,2, 4,2, 5,2, 6,2,
+        0,3, 1,3, 2,3, 3,3, 4,3, 5,3, 6,3,
+        1,4, 2,4, 3,4, 4,4, 5,4,
+        2,5, 3,5, 4,5,
+        3,6
+    ];
+
+    // 像素信封形状（9列 × 9行）
+    var ENVELOPE = [
+        0,0,1,0,2,0,3,0,4,0,5,0,6,0,7,0,8,0,
+        0,1, 8,1,
+        0,2,2,2,6,2,8,2,
+        0,3,3,3,5,3,8,3,
+        0,4,4,4,8,4,
+        0,5, 8,5,
+        0,6,1,6,2,6,3,6,4,6,5,6,6,6,7,6,8,6,
+        2,7,6,7,
+        3,8,4,8,5,8
+    ];
+
+    var PXL = 4; // 每个像素的尺寸
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function drawShape(ctx, shape, x, y, alpha) {
+        ctx.globalAlpha = alpha;
+        for (var i = 0; i < shape.length; i += 2) {
+            ctx.fillRect(
+                x + shape[i] * PXL,
+                y + shape[i + 1] * PXL,
+                PXL, PXL
+            );
+        }
+        ctx.globalAlpha = 1;
+    }
+
+    function spawn() {
+        var rect = btn.getBoundingClientRect();
+        var cx = rect.left + rect.width / 2;
+        var cy = rect.top;
+
+        var type = Math.random() < 0.6 ? 'heart' : 'envelope';
+        var color = type === 'heart'
+            ? (Math.random() < 0.5 ? '#ff6b9d' : '#ff8db5')
+            : (Math.random() < 0.5 ? '#ffe0ec' : '#ffa4c4');
+
+        particles.push({
+            x: cx + (Math.random() - 0.5) * 60,
+            y: cy,
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: -(1 + Math.random() * 2.5),
+            alpha: 1,
+            type: type,
+            color: color,
+            rotation: (Math.random() - 0.5) * 0.5
+        });
+    }
+
+    function getInterval(elapsed) {
+        if (elapsed < 1000) return 280;
+        if (elapsed < 2000) return 180;
+        if (elapsed < 3000) return 100;
+        if (elapsed < 4000) return 60;
+        return 35;
+    }
+
+    function tick(ts) {
+        animId = requestAnimationFrame(tick);
+
+        if (pressing) {
+            var elapsed = ts - pressStart;
+            var interval = getInterval(elapsed);
+            if (ts - lastSpawn > interval) {
+                spawn();
+                lastSpawn = ts;
+                // 速度快时一次多生成几个
+                if (interval < 80) {
+                    spawn();
+                    if (interval < 50) spawn();
+                }
+            }
+        }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (var i = particles.length - 1; i >= 0; i--) {
+            var p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy -= 0.02;
+            p.alpha -= 0.006;
+            p.rotation += Math.random() * 0.02 - 0.01;
+
+            if (p.alpha <= 0 || p.y < -80) {
+                particles.splice(i, 1);
+                continue;
+            }
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation);
+            ctx.fillStyle = p.color;
+
+            var shape = p.type === 'heart' ? HEART : ENVELOPE;
+            drawShape(ctx, shape, -shape[Math.max(0,shape.length-2)]/2 * PXL, -9*PXL/2, p.alpha);
+
+            ctx.restore();
+        }
+    }
+
+    function startPress(e) {
+        e.preventDefault();
+        pressing = true;
+        pressStart = performance.now();
+        lastSpawn = pressStart;
+        btn.classList.add('pressing');
+        if (!animId) animId = requestAnimationFrame(tick);
+    }
+
+    function endPress(e) {
+        e.preventDefault();
+        pressing = false;
+        btn.classList.remove('pressing');
+    }
+
+    btn.addEventListener('mousedown', startPress);
+    btn.addEventListener('mouseup', endPress);
+    btn.addEventListener('mouseleave', endPress);
+    btn.addEventListener('touchstart', startPress, {passive:false});
+    btn.addEventListener('touchend', endPress);
+    btn.addEventListener('touchcancel', endPress);
+
+    if (!animId) animId = requestAnimationFrame(tick);
+})();
+</script>
 </body>
 </html>
